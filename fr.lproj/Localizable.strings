@@ -1,0 +1,15 @@
+/* 
+  LocalizableStrings.strings
+  WorldCup
+
+  Created by Yassir RAMDANI on 16/06/2018.
+  Copyright © 2018 Yassir RAMDANI. All rights reserved.
+*/
+
+
+"locID" = "fr";
+"COMPLETED" = "TÉRMINÉ";
+"IN PROGRESS" = "EN COURS";
+"FUTURE" = "FUTUR";
+"ALERTTITLE" = "🙏🏻 Merci 🙏🏻";
+"ALERTMESSAGE" = "\nMerci d'avoir téléchrgé notre application.\n\n\nDes mises à jour arrivent très bientot 😉";
