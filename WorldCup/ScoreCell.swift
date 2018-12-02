@@ -42,10 +42,12 @@ class ScoreCell: UICollectionViewCell {
             AwayTeamNameLab.text = match?.away_team.country
             let dateFormatter = DateFormatter()
             dateFormatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ss'Z'"
+            dateFormatter.timeZone = TimeZone(abbreviation: "UTC")
             let mydte = dateFormatter.date(from:match?.datetime ?? "")
             dateFormatter.dateFormat = "EEEE dd MMMM YYYY (HH:mm)"
-            dateFormatter.timeZone = TimeZone(abbreviation: "UTC")
-            dateFormatter.locale = Locale(identifier: NSLocalizedString("locId", comment: ""))
+            var localTimeZoneAbbreviation: String { return TimeZone.current.abbreviation() ?? "" }
+            dateFormatter.timeZone = TimeZone(abbreviation: localTimeZoneAbbreviation)
+            dateFormatter.locale = Locale(identifier: NSLocalizedString("locID", comment: ""))
             if let mydte = mydte{
                 DateLab.text = dateFormatter.string(from: mydte)
 
@@ -363,10 +365,13 @@ extension ScoreCell : UITableViewDelegate , UITableViewDataSource {
         case "substitution-in"?:
             imgv.image = #imageLiteral(resourceName: "in").withRenderingMode(.alwaysTemplate)
             imgv.tintColor = .green
+        case "substitution-out"?:
+            imgv.image = #imageLiteral(resourceName: "out").withRenderingMode(.alwaysTemplate)
+            imgv.tintColor = .red
         case "red-card"?:
             imgv.image = #imageLiteral(resourceName: "card").withRenderingMode(.alwaysTemplate)
             imgv.tintColor = .red
-        case "goal"? , "goal-own"? :
+        case "goal"? , "goal-own"? , "goal-penalty"? :
             imgv.image = #imageLiteral(resourceName: "ball")
         default:
             imgv.image = nil

@@ -20,8 +20,28 @@ class Generic: NSObject {
     static func getGeneric() -> Generic{
         return generic
     }
+    
+    func perform(after sec: Float, conpletion : @escaping ()->()){
+        _ = Timer.scheduledTimer(withTimeInterval: TimeInterval(sec), repeats: false, block: { (T) in
+            conpletion()
+            T.invalidate()
+        })
+    }
 
-
+    func rateApp(appId: String, completion: @escaping ((_ success: Bool)->())) {
+        guard let url = URL(string : "itms-apps://itunes.apple.com/app/" + appId) else {
+            completion(false)
+            return
+        }
+        guard #available(iOS 10, *) else {
+            completion(UIApplication.shared.openURL(url))
+            return
+        }
+        UIApplication.shared.open(url, options: [:], completionHandler: completion)
+    }
+    
+    
+    
     func getData<T:Decodable>(Url:String ,completion:@escaping(T)->()){
         
         var request = URLRequest(url: URL(string: Url)!)
@@ -106,7 +126,7 @@ extension String {
         case Countries.PER.rawValue :
             return "pe"
         case Countries.DEN.rawValue :
-            return "de"
+            return "dk"
         case Countries.ARG.rawValue :
             return "ar"
         case Countries.ISL.rawValue :

@@ -28,22 +28,21 @@ class MainPage: UIViewController {
         self.collec.register(ScoreCell.self, forCellWithReuseIdentifier: "cell")
         
 
-        
+
+
         bannerView = GADBannerView(adSize: kGADAdSizeBanner)
         bannerView.adUnitID = "ca-app-pub-3934826150219455/4648556212"
         bannerView.rootViewController = self
         bannerView.load(GADRequest())
         
-        view.addSubview(bannerView)
-        bannerView.translatesAutoresizingMaskIntoConstraints = false
-        bannerView.leftAnchor.constraint(equalTo: view.leftAnchor).isActive = true
-        bannerView.rightAnchor.constraint(equalTo: view.rightAnchor).isActive = true
-        bannerView.bottomAnchor.constraint(equalTo: view.bottomAnchor).isActive = true
-        bannerView.heightAnchor.constraint(equalToConstant:50).isActive = true
         
         
+        myMatchs = []
         refresh()
-        
+        let _ = Timer.scheduledTimer(withTimeInterval: 160, repeats: true) { (t) in
+            self.refresh()
+            print("refresh")
+        }
       
         let v = UIView(frame: CGRect(x: 0, y: 0, width: view.frame.width, height: 260))
         view.addSubview(v)
@@ -54,10 +53,10 @@ class MainPage: UIViewController {
         gradientColor.locations = [0,1]
         gradientColor.frame = v.frame
         v.layer.addSublayer(gradientColor)
-            
+        
         view.addSubview(collec)
         collec.translatesAutoresizingMaskIntoConstraints = false
-        collec.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: -50).isActive = true
+        collec.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: 0).isActive = true
         collec.topAnchor.constraint(equalTo: view.topAnchor, constant: 70).isActive = true
         collec.leftAnchor.constraint(equalTo: view.leftAnchor, constant: 0).isActive = true
         collec.rightAnchor.constraint(equalTo: view.rightAnchor, constant: 0).isActive = true
@@ -67,7 +66,22 @@ class MainPage: UIViewController {
         collec.delegate = self
         collec.dataSource = self
         
+        collec.contentInset = UIEdgeInsets(top: 0, left: 0, bottom: 62, right: 0)
         
+        
+        view.addSubview(titleLab)
+        titleLab.translatesAutoresizingMaskIntoConstraints = false
+        titleLab.rightAnchor.constraint(equalTo: view.rightAnchor, constant: 0).isActive = true
+        titleLab.topAnchor.constraint(equalTo: view.topAnchor, constant: 28).isActive = true
+        titleLab.heightAnchor.constraint(equalToConstant: 38).isActive = true
+        titleLab.leftAnchor.constraint(equalTo: view.leftAnchor).isActive = true
+        titleLab.font = UIFont.init(name: "bignoodletitling", size: 32)
+        titleLab.text = "Matches"
+        titleLab.textColor = .white
+        titleLab.textAlignment = .center
+        let tapg = UITapGestureRecognizer(target: self, action: #selector(slideToday))
+        titleLab.addGestureRecognizer(tapg)
+        titleLab.isUserInteractionEnabled = true
         
         view.addSubview(refreshBtn)
         refreshBtn.translatesAutoresizingMaskIntoConstraints = false
@@ -90,33 +104,57 @@ class MainPage: UIViewController {
         menuBtn.tintColor = .white
         menuBtn.addTarget(self, action: #selector(menu), for: .touchUpInside)
         
-        view.addSubview(titleLab)
-        titleLab.translatesAutoresizingMaskIntoConstraints = false
-        titleLab.rightAnchor.constraint(equalTo: view.rightAnchor, constant: 0).isActive = true
-        titleLab.topAnchor.constraint(equalTo: view.topAnchor, constant: 28).isActive = true
-        titleLab.heightAnchor.constraint(equalToConstant: 38).isActive = true
-        titleLab.leftAnchor.constraint(equalTo: view.leftAnchor).isActive = true
-        titleLab.font = UIFont.init(name: "bignoodletitling", size: 32)
-        titleLab.text = "Matches"
-        titleLab.textColor = .white
-        titleLab.textAlignment = .center
         
+        
+        view.addSubview(bannerView)
+        bannerView.translatesAutoresizingMaskIntoConstraints = false
+        bannerView.leftAnchor.constraint(equalTo: view.leftAnchor).isActive = true
+        bannerView.rightAnchor.constraint(equalTo: view.rightAnchor).isActive = true
+        bannerView.bottomAnchor.constraint(equalTo: view.bottomAnchor).isActive = true
+        bannerView.heightAnchor.constraint(equalToConstant:50).isActive = true
         
     }
+    
+    @objc func slideToday(wait : Bool = false){
+        var i = 0
+        for m in self.myMatchs {
+            i += 1
+            let dateFormatter = DateFormatter()
+            dateFormatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ss'Z'"
+            dateFormatter.timeZone = TimeZone(abbreviation: "UTC")
+            let mydte = dateFormatter.date(from:m.datetime ?? "")
+            if  Date().compare(mydte!) == .orderedAscending {
+                break
+            }
+            
+        }
+        self.generic.perform(after: wait ? 0:1, conpletion: {
+            self.collec.scrollToItem(at: IndexPath(item: i, section: 0), at: .bottom, animated: true)
+        })
+
+    }
+    
+    
     let refreshBtn = UIButton(type: UIButtonType.custom)
     let menuBtn = UIButton(type: UIButtonType.custom)
     let titleLab = UILabel()
     @objc func menu(){
         let alert = UIAlertController(title: NSLocalizedString("ALERTTITLE", comment: ""), message: NSLocalizedString("ALERTMESSAGE", comment: ""), preferredStyle: .alert)
         alert.addAction(UIAlertAction(title: "Ok", style: .default, handler: nil) )
+        alert.addAction(UIAlertAction(title: "✍️ \(NSLocalizedString("RATE", comment: "")) ✍️", style: .default, handler: {(ale) in
+            self.generic.rateApp(appId: "id1399939626") { success in
+                print("RateApp \(success)")
+            }
+        }) )
         present(alert, animated: true, completion: nil)
     }
     @objc func refresh(){
-
         generic.getData(Url: APIURL+MATCHS) { (m:[Match]) in
+            self.myMatchs = []
             self.myMatchs.append(contentsOf: m)
             DispatchQueue.main.async {
                 self.collec.reloadData()
+                self.slideToday(wait: true)
             }
             
         }
@@ -147,6 +185,7 @@ extension MainPage : UICollectionViewDelegate , UICollectionViewDataSource , UIC
         cell.layer.shadowOffset = CGSize(width: 0, height: 2)
         cell.layer.shadowRadius = 2
         cell.match = myMatchs[indexPath.item]
+        cell.tabv.reloadData()
         return cell
     }
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {

@@ -7,9 +7,10 @@
 */
 
 
-"locID" = "fr";
+"locID" = "fr_FR";
 "COMPLETED" = "TÉRMINÉ";
 "IN PROGRESS" = "EN COURS";
 "FUTURE" = "FUTUR";
 "ALERTTITLE" = "🙏🏻 Merci 🙏🏻";
 "ALERTMESSAGE" = "\nMerci d'avoir téléchrgé notre application.\n\n\nDes mises à jour arrivent très bientot 😉";
+"RATE" = "Noter l'application";
